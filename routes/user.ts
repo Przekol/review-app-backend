@@ -1,4 +1,5 @@
 import { Router, Request, Response, NextFunction } from "express";
+import { User } from "../records/user.record";
 
 export const userRouter: Router = Router();
 
@@ -8,6 +9,9 @@ userRouter
       id: 1,
     });
   })
-  .post("/", (req: Request, res: Response, next: NextFunction) => {
-    res.status(201).json({ user: req.body });
+  .post("/", async (req: Request, res: Response, next: NextFunction) => {
+    const { name, email, password } = req.body;
+    const newUser = new User({ name, email, password });
+    await newUser.save();
+    res.json({ user: newUser });
   });
