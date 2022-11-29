@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from "express";
 
 import { createUser } from "../services/user.service";
+import { userValidator, validate } from "../middlewares/validator";
 
 export const userRouter: Router = Router();
 
@@ -10,8 +11,4 @@ userRouter
       id: 1,
     });
   })
-  .post(
-    "/",
-
-    createUser
-  );
+  .post("/", userValidator, validate, createUser);
