@@ -1,0 +1,18 @@
+import { Response } from "express";
+
+export const sendError = (
+  res: Response,
+  message: string,
+  statusCode: number = 401
+) => {
+  res.status(statusCode).json({ error: message });
+};
+
+export const generateOtp = (otpLength: number = 6): string => {
+  let OTP: string = "";
+  for (let i = 0; i < otpLength - 1; i++) {
+    const randoVal = Math.round(Math.random() * 9);
+    OTP += randoVal;
+  }
+  return OTP;
+};

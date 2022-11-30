@@ -1,5 +1,6 @@
 import { model, Schema } from "mongoose";
 import * as bcrypt from "bcrypt";
+import { EmailVerificationTokenDoc } from "../types/email-verification-token";
 
 const emailVerificationTokenSchema = new Schema({
   owner: {
@@ -31,7 +32,7 @@ emailVerificationTokenSchema.methods.compareToken = async function (
   return result;
 };
 
-export const EmailVerificationToken = model(
+export const EmailVerificationToken = model<EmailVerificationTokenDoc>(
   "EmailVerificationToken",
   emailVerificationTokenSchema
 );
