@@ -1,4 +1,5 @@
 import { Response } from "express";
+import { randomBytes } from "crypto";
 
 export const sendError = (
   res: Response,
@@ -15,4 +16,14 @@ export const generateOtp = (otpLength: number = 6): string => {
     OTP += randoVal;
   }
   return OTP;
+};
+
+export const generateRandomByte = () => {
+  return new Promise((resolve, reject) => {
+    randomBytes(30, (err, buf) => {
+      if (err) return reject(err);
+      const buffString = buf.toString("hex");
+      resolve(buffString);
+    });
+  });
 };

@@ -3,7 +3,9 @@ import { User } from "../records/user.record";
 import { EmailVerificationToken } from "../records/email-verification-token.record";
 import { isValidObjectId } from "mongoose";
 import { sendMail } from "../utils/mail";
-import { sendError, generateOtp } from "../utils/helper";
+import { sendError, generateOtp, generateRandomByte } from "../utils/helper";
+import { PasswordResetToken } from "../records/password-reset-token.record";
+import { ENV } from "../config/env-variables";
 
 export const createUser = async (
   req: Request,
@@ -25,6 +27,7 @@ export const createUser = async (
   await newEmailVerificationToken.save();
 
   await sendMail(
+    ENV.MAIL_USERNAME_EMAIL,
     newUser.email,
     "Verification email",
     `
@@ -70,6 +73,7 @@ export const verifyEmail = async (
   await EmailVerificationToken.findByIdAndDelete(token._id);
 
   await sendMail(
+    ENV.MAIL_USERNAME_EMAIL,
     user.email,
     "Welcome Email",
     `
@@ -108,6 +112,7 @@ export const resendEmailVerificationToken = async (
   await newEmailVerificationToken.save();
 
   await sendMail(
+    ENV.MAIL_USERNAME_EMAIL,
     user.email,
     "Verification email",
     `
@@ -115,16 +120,50 @@ export const resendEmailVerificationToken = async (
         <h1>${OTP}</h1>
         `
   );
-  // await transport.sendMail({
-  //   from: "verification@reviewapp.com",
-  //   to: user.email,
-  //   subject: "Verification email",
-  //   html: `
-  //     <p>Your verification OTP</p>
-  //     <h1>${OTP}</h1>
-  //     `,
-  // });
+
   res.status(201).json({
     message: "New OTP has been sent to your registered email account.",
   });
+};
+
+export const forgotPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { email } = req.body;
+
+  if (!email) return sendError(res, "Email is missing!");
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    return sendError(res, "User not found!");
+  }
+  const alreadyHasToken = await PasswordResetToken.findOne({ owner: user._id });
+
+  if (alreadyHasToken)
+    return sendError(
+      res,
+      "Only after one hour you can request for another token"
+    );
+
+  const token = await generateRandomByte();
+  const newPasswordResetToken = await new PasswordResetToken({
+    owner: user._id,
+    token,
+  });
+  await newPasswordResetToken.save();
+
+  const resetPasswordUrl = `http://${ENV.HOST}:${ENV.PORT}/reset-password?token=${token}&id=${user._id}`;
+
+  await sendMail(
+    "security@reviewapp.com",
+    user.email,
+    "Reset Password Link",
+    `
+        <p>Click here to reset password.</p>
+        <a href="${resetPasswordUrl}">Change Password</a>
+        `
+  );
+  res.json({ message: "Link sent to your email!" });
 };

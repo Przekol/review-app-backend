@@ -11,12 +11,13 @@ const transport = createTransport({
 });
 
 export const sendMail = async (
+  from: string,
   to: string,
   subject: string,
   message: string
 ) => {
   await transport.sendMail({
-    from: ENV.MAIL_USERNAME_EMAIL,
+    from,
     to,
     subject,
     html: message,

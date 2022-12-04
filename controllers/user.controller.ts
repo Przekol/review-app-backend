@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from "express";
 
 import {
   createUser,
+  forgotPassword,
   resendEmailVerificationToken,
   verifyEmail,
 } from "../services/user.service";
@@ -17,4 +18,5 @@ userRouter
   })
   .post("/sign-up", userValidator, validate, createUser)
   .post("/verify-email", verifyEmail)
-  .post("/resend-email-verification-token", resendEmailVerificationToken);
+  .post("/resend-email-verification-token", resendEmailVerificationToken)
+  .post("/forget-password", forgotPassword);
