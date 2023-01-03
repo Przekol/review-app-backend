@@ -1,5 +1,6 @@
 import * as express from 'express';
 import { Application, json } from 'express';
+import 'express-async-errors';
 import * as morgan from 'morgan';
 import './config/db';
 import { ENV } from './config';
