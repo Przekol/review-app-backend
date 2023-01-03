@@ -1,5 +1,5 @@
-import { createTransport } from "nodemailer";
-import { ENV } from "../config/env-variables";
+import { createTransport } from 'nodemailer';
+import { ENV } from '../config';
 
 const transport = createTransport({
   host: ENV.MAIL_HOST,
@@ -10,12 +10,7 @@ const transport = createTransport({
   },
 });
 
-export const sendMail = async (
-  from: string,
-  to: string,
-  subject: string,
-  message: string
-) => {
+export const sendMail = async (from: string, to: string, subject: string, message: string) => {
   await transport.sendMail({
     from,
     to,

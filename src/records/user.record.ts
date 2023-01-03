@@ -1,6 +1,6 @@
-import { model, Schema } from "mongoose";
-import * as bcrypt from "bcrypt";
-import { UserDoc } from "../types/user";
+import { model, Schema } from 'mongoose';
+import * as bcrypt from 'bcrypt';
+import { UserDoc } from '../../types';
 
 const userSchema = new Schema({
   name: {
@@ -25,8 +25,8 @@ const userSchema = new Schema({
   },
 });
 
-userSchema.pre("save", async function (next) {
-  if (this.isModified("password")) {
+userSchema.pre('save', async function (next) {
+  if (this.isModified('password')) {
     this.password = await bcrypt.hash(this.password, 10);
   }
   next();
@@ -36,4 +36,4 @@ userSchema.methods.comparePassword = async function (password: string) {
   return await bcrypt.compare(password, this.password);
 };
 
-export const User = model<UserDoc>("User", userSchema);
+export const User = model<UserDoc>('User', userSchema);
