@@ -1,4 +1,6 @@
 import { NextFunction, Request, Response } from "express";
+import "express-async-errors";
+import * as jwt from "jsonwebtoken";
 import { User } from "../records/user.record";
 import { EmailVerificationToken } from "../records/email-verification-token.record";
 import { isValidObjectId } from "mongoose";
@@ -166,4 +168,70 @@ export const forgotPassword = async (
         `
   );
   res.json({ message: "Link sent to your email!" });
+};
+
+export const sendResetPasswordTokenStatus = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  res.json({ valid: true });
+};
+
+export const resetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { newPassword, userId } = req.body;
+
+  const user = await User.findById(userId);
+  const isMatched = await user.comparePassword(newPassword);
+  if (isMatched)
+    return sendError(
+      res,
+      "The new password must be different from the old one!"
+    );
+
+  user.password = newPassword;
+  await user.save();
+
+  // @ts-ignore
+  await PasswordResetToken.findByIdAndDelete(req.resetToken._id);
+  await sendMail(
+    "security@reviewapp.com",
+    user.email,
+    "Password Reset Successfully",
+    `
+  <h1>Password Reset Successfully</h1>
+  <p>Now you can use new password.</p>
+  `
+  );
+  res.json({
+    message: "Password Reset Successfully,now you can use new password.",
+  });
+};
+
+export const signIn = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) return sendError(res, "Email/Password mismatch.");
+
+  const isMatched = await user.comparePassword(password);
+  if (!isMatched) return sendError(res, "Email/Password mismatch.");
+
+  const jwtToken = jwt.sign({ userId: user._id }, ENV.JWT_SECRET);
+  res.json({
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      token: jwtToken,
+    },
+  });
 };
