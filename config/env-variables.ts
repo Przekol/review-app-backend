@@ -14,6 +14,7 @@ interface Environment {
   MAIL_USERNAME: string;
   MAIL_PASSWORD: string;
   MAIL_USERNAME_EMAIL: string;
+  JWT_SECRET: string;
 }
 
 export const ENV: Environment = {
@@ -29,4 +30,5 @@ export const ENV: Environment = {
   MAIL_USERNAME: process.env.MAIL_USERNAME,
   MAIL_PASSWORD: process.env.MAIL_PASSWORD,
   MAIL_USERNAME_EMAIL: process.env.MAIL_USERNAME_EMAIL,
+  JWT_SECRET: process.env.JWT_SECRET,
 };
