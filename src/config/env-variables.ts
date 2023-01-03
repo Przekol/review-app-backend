@@ -1,4 +1,4 @@
-import * as dotenv from "dotenv";
+import * as dotenv from 'dotenv';
 dotenv.config();
 
 interface Environment {
@@ -19,7 +19,7 @@ interface Environment {
 
 export const ENV: Environment = {
   PORT: Number(process.env.PORT) || 3000,
-  HOST: process.env.HOST_NAME || "localhost",
+  HOST: process.env.HOST_NAME || 'localhost',
   MONGO_PORT: Number(process.env.MONGO_PORT),
   MONGO_DB_NAME: process.env.MONGO_DB_NAME,
   MONGO_HOST: process.env.MONGO_HOST,
